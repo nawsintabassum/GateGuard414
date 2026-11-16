@@ -15,7 +15,7 @@ import {
 } from 'recharts'
 import { toast } from 'sonner'
 import {
-  api, clearSession, demoHistory, demoProjects, DEMO_MODE,
+  api, getCached, clearSession, demoHistory, demoProjects, DEMO_MODE,
   getAccessToken, getStoredUser, saveSession
 } from '../lib/api'
 import {
@@ -305,7 +305,7 @@ export function Dashboard() {
       )
     }
 
-    api.get<{ projects: any[] }>('/projects')
+    getCached<{ projects: any[] }>('/projects')
       .then(({ data }) => {
         if (!active) return
         projectItems = data.projects
@@ -318,7 +318,7 @@ export function Dashboard() {
         if (active) setLoading(false)
       })
 
-    api.get<{ analyses: any[] }>('/analyses?limit=10')
+    getCached<{ analyses: any[] }>('/analyses?limit=10')
       .then(({ data }) => {
         if (!active) return
         analysisItems = data.analyses
@@ -599,7 +599,7 @@ export function Projects() {
 
     let active = true
 
-    api.get<{ projects: any[] }>('/projects')
+    getCached<{ projects: any[] }>('/projects')
       .then(({ data }) => {
         if (active) setRows(data.projects.map(mapProject))
       })
@@ -1029,8 +1029,8 @@ export function ProjectDetails() {
     let active = true
 
     Promise.all([
-      api.get<{ project: any }>(`/projects/${id}`),
-      api.get<{ analyses: any[] }>(
+      getCached<{ project: any }>(`/projects/${id}`),
+      getCached<{ analyses: any[] }>(
         `/analyses?projectId=${encodeURIComponent(id)}&limit=10`
       )
     ])
@@ -1265,7 +1265,7 @@ export function AnalysisResults() {
 
     let active = true
 
-    api.get<{ analysis: any }>(`/analyses/${id}`)
+    getCached<{ analysis: any }>(`/analyses/${id}`)
       .then(({ data }) => {
         if (active) setAnalysis(data.analysis)
       })
@@ -1497,7 +1497,7 @@ export function QualityRules() {
 
     let active = true
 
-    api.get<{ rules: any }>('/rules')
+    getCached<{ rules: any }>('/rules')
       .then(({ data }) => {
         if (!active) return
 
@@ -1756,7 +1756,7 @@ export function HistoryPage() {
 
     let active = true
 
-    api.get<{ analyses: any[] }>('/analyses?limit=100')
+    getCached<{ analyses: any[] }>('/analyses?limit=100')
       .then(({ data }) => {
         if (active) {
           setRows(
@@ -1892,7 +1892,7 @@ export function Reports() {
 
     let active = true
 
-    api.get<{ analyses: any[] }>('/analyses?limit=100')
+    getCached<{ analyses: any[] }>('/analyses?limit=100')
       .then(({ data }) => {
         if (!active) return
 

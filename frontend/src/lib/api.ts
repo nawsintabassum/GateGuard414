@@ -11,12 +11,13 @@ export const api = axios.create({
 })
 
 // Short-lived in-memory cache for read-only workspace requests.
-// Mutations and session changes clear it so updated data is fetched again.
 const getCache = new Map<string, { expiresAt: number; data: unknown }>()
 const pendingGets = new Map<string, Promise<{ data: unknown }>>()
+let cacheVersion = 0
 
 export function getCached<T>(url: string, ttl = 15000): Promise<{ data: T }> {
   const cached = getCache.get(url)
+
   if (cached && cached.expiresAt > Date.now()) {
     return Promise.resolve({ data: cached.data as T })
   }
@@ -24,18 +25,27 @@ export function getCached<T>(url: string, ttl = 15000): Promise<{ data: T }> {
   const pending = pendingGets.get(url)
   if (pending) return pending as Promise<{ data: T }>
 
+  const requestVersion = cacheVersion
+
   const request = api.get<T>(url)
     .then(({ data }) => {
-      getCache.set(url, { expiresAt: Date.now() + ttl, data })
+      if (requestVersion === cacheVersion) {
+        getCache.set(url, { expiresAt: Date.now() + ttl, data })
+      }
       return { data }
     })
-    .finally(() => pendingGets.delete(url))
+    .finally(() => {
+      if (pendingGets.get(url) === request) {
+        pendingGets.delete(url)
+      }
+    })
 
   pendingGets.set(url, request as Promise<{ data: unknown }>)
   return request
 }
 
 function clearReadCache() {
+  cacheVersion++
   getCache.clear()
   pendingGets.clear()
 }
