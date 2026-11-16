@@ -8,33 +8,44 @@ import { api, clearSession, getAccessToken, getStoredUser, type AuthUser } from 
 
 function ProtectedLayout() {
   const location = useLocation()
-  const [checking, setChecking] = useState(true)
-  const [authenticated, setAuthenticated] = useState(false)
+  const hasSavedSession = Boolean(getAccessToken() && getStoredUser())
+  const [checking, setChecking] = useState(() => Boolean(getAccessToken() && !getStoredUser()))
+  const [authenticated, setAuthenticated] = useState(hasSavedSession)
 
   useEffect(() => {
     let active = true
     const token = getAccessToken()
+
     if (!token) {
       setAuthenticated(false)
       setChecking(false)
       return
     }
+
+    // If a saved session exists, keep the workspace visible while the server
+    // validates it. This removes the extra blocking screen after every login.
     api.get<{ user: AuthUser }>('/auth/me')
       .then(({ data }) => {
         if (!active) return
         localStorage.setItem('gateguard.user', JSON.stringify(data.user))
         setAuthenticated(true)
       })
-      .catch(() => {
+      .catch((error: any) => {
         if (!active) return
-        clearSession()
-        setAuthenticated(false)
+        if (error?.response?.status === 401) {
+          clearSession()
+          setAuthenticated(false)
+        } else if (!getStoredUser()) {
+          setAuthenticated(false)
+        }
+        // A temporary network issue should not hide an already-open session.
       })
       .finally(() => { if (active) setChecking(false) })
+
     return () => { active = false }
   }, [])
 
-  if (checking) return <div className="auth-page"><div className="auth-form-wrap">Verifying your session…</div></div>
+  if (checking && !authenticated) return <div className="auth-page"><div className="auth-form-wrap">Verifying your session…</div></div>
   if (!authenticated) return <Navigate to="/auth/login" replace state={{ from: location.pathname }} />
   return <Layout />
 }

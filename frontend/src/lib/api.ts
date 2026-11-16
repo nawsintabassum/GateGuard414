@@ -10,6 +10,36 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+// Short-lived in-memory cache for read-only workspace requests.
+// Mutations and session changes clear it so updated data is fetched again.
+const getCache = new Map<string, { expiresAt: number; data: unknown }>()
+const pendingGets = new Map<string, Promise<{ data: unknown }>>()
+
+export function getCached<T>(url: string, ttl = 15000): Promise<{ data: T }> {
+  const cached = getCache.get(url)
+  if (cached && cached.expiresAt > Date.now()) {
+    return Promise.resolve({ data: cached.data as T })
+  }
+
+  const pending = pendingGets.get(url)
+  if (pending) return pending as Promise<{ data: T }>
+
+  const request = api.get<T>(url)
+    .then(({ data }) => {
+      getCache.set(url, { expiresAt: Date.now() + ttl, data })
+      return { data }
+    })
+    .finally(() => pendingGets.delete(url))
+
+  pendingGets.set(url, request as Promise<{ data: unknown }>)
+  return request
+}
+
+function clearReadCache() {
+  getCache.clear()
+  pendingGets.clear()
+}
+
 const TOKEN_KEY = 'gateguard.accessToken'
 const USER_KEY = 'gateguard.user'
 
@@ -36,11 +66,13 @@ export function getStoredUser(): AuthUser | null {
 }
 
 export function saveSession(token: string, user: AuthUser) {
+  clearReadCache()
   localStorage.setItem(TOKEN_KEY, token)
   localStorage.setItem(USER_KEY, JSON.stringify(user))
 }
 
 export function clearSession() {
+  clearReadCache()
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
 }
@@ -52,7 +84,12 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  response => response,
+  response => {
+    if (response.config.method && response.config.method.toLowerCase() !== 'get') {
+      clearReadCache()
+    }
+    return response
+  },
   error => {
     if (error.response?.status === 401 && getAccessToken()) {
       clearSession()

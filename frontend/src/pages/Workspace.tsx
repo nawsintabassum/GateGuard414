@@ -276,45 +276,57 @@ export function Dashboard() {
     if (DEMO_MODE) return
 
     let active = true
+    let projectItems: any[] = []
+    let analysisItems: any[] = []
 
-    Promise.all([
-      api.get<{ projects: any[] }>('/projects'),
-      api.get<{ analyses: any[] }>('/analyses?limit=10')
-    ])
-      .then(([p, a]) => {
-        if (!active) return
+    const updateProjects = () => {
+      const latestByProject = new Map<string, any>()
 
-        const latestByProject = new Map<string, any>()
-
-        for (const item of a.data.analyses) {
-          const projectId = String(item.project?._id || item.project)
-
-          if (!latestByProject.has(projectId)) {
-            latestByProject.set(projectId, item)
-          }
+      for (const item of analysisItems) {
+        const projectId = String(item.project?._id || item.project)
+        if (!latestByProject.has(projectId)) {
+          latestByProject.set(projectId, item)
         }
+      }
 
-        setProjects(
-          p.data.projects.map((item: any) => {
-            const latest = latestByProject.get(String(item._id))
+      setProjects(
+        projectItems.map((item: any) => {
+          const latest = latestByProject.get(String(item._id))
+          return {
+            ...mapProject(item),
+            coverage: Number(latest?.metrics?.coverage?.lines || 0),
+            score: Number(latest?.score || item.latestScore || 0),
+            status: latest?.status || item.latestStatus || 'WARNING',
+            updated: latest?.createdAt
+              ? new Date(latest.createdAt).toLocaleString()
+              : 'Not analyzed yet'
+          }
+        })
+      )
+    }
 
-            return {
-              ...mapProject(item),
-              coverage: Number(latest?.metrics?.coverage?.lines || 0),
-              score: Number(latest?.score || item.latestScore || 0),
-              status: latest?.status || item.latestStatus || 'WARNING',
-              updated: latest?.createdAt
-                ? new Date(latest.createdAt).toLocaleString()
-                : 'Not analyzed yet'
-            }
-          })
-        )
-
-        setAnalyses(a.data.analyses)
+    api.get<{ projects: any[] }>('/projects')
+      .then(({ data }) => {
+        if (!active) return
+        projectItems = data.projects
+        updateProjects()
       })
-      .catch(() => toast.error('Could not load dashboard data from GateGuard API'))
+      .catch(() => {
+        if (active) toast.error('Could not load projects from GateGuard API')
+      })
       .finally(() => {
         if (active) setLoading(false)
+      })
+
+    api.get<{ analyses: any[] }>('/analyses?limit=10')
+      .then(({ data }) => {
+        if (!active) return
+        analysisItems = data.analyses
+        setAnalyses(analysisItems)
+        updateProjects()
+      })
+      .catch(() => {
+        if (active) toast.error('Could not load analyses from GateGuard API')
       })
 
     return () => {

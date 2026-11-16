@@ -53,11 +53,12 @@ function startOAuth(provider: "github" | "google") {
 async function completeOAuthLogin(
   res: Response,
   profile: { email: string; name: string; provider: "github" | "google"; providerId: string; githubUsername?: string }
-) {
+){
   let user = await User.findOne({ email: profile.email });
-  const passwordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 12);
 
   if (!user) {
+    const passwordHash = await bcrypt.hash(randomBytes(32).toString("hex"), 12);
+
     user = await User.create({
       name: profile.name || profile.email.split("@")[0],
       email: profile.email,
