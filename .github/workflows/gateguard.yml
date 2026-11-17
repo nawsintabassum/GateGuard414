@@ -121,4 +121,4 @@ jobs:
             echo "GateGuard quality gate failed. See the submitted analysis for details."
             exit 1
           }
-```
+
