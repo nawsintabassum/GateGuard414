@@ -1,113 +1,276 @@
-# GateGuard
+# GateGuard 🛡️
+### Software Quality Monitoring & Quality Gate Management Platform
 
-**GateGuard** is a developer-focused software quality assurance platform. It collects CI evidence from GitHub Actions, evaluates configurable quality thresholds, stores analysis history, and presents quality findings and reports in a web workspace.
+**Build better software. Detect quality issues early. Ship with confidence.**
 
-## Project structure
+GateGuard is a software quality monitoring and quality gate management platform designed to help development teams evaluate code quality, monitor testing performance, identify security risks, and make informed release decisions.
+
+By integrating with GitHub and CI/CD workflows, GateGuard brings essential software quality insights into one centralized workspace.
+
+---
+## Vercel Link : https://gateguard-git-test-pull-request-gate-guard1.vercel.app
+
+## 🚀 Key Features
+
+### 1. GitHub Integration
+- Connect GitHub accounts and repositories.
+- Link repositories to GateGuard projects.
+- Monitor project-related quality analysis.
+- Support GitHub-based development workflows.
+
+### 2. Quality Monitoring Dashboard
+Get a centralized overview of software quality through key metrics:
+
+- **Test Coverage:** Measures how much of the codebase is covered by tests.
+- **Test Pass Rate:** Tracks successful versus total test executions.
+- **ESLint Errors:** Highlights code quality and linting issues.
+- **Dependency Vulnerabilities:** Tracks security vulnerabilities in project dependencies.
+- **Quality Score:** Provides an overall view of project quality.
+
+### 3. Analysis History
+- View previous analysis results.
+- Track project quality assessments.
+- Review historical findings and analysis details.
+- Compare results across analysis sessions.
+
+### 4. Configurable Quality Rules
+Define quality requirements according to project needs.
+
+Default quality thresholds include:
+
+| Quality Metric | Default Requirement |
+|---|---:|
+| Test Coverage | At least 80% |
+| Test Pass Rate | At least 95% |
+| ESLint Errors | Maximum 0 |
+| Critical/High Vulnerabilities | Maximum 0 |
+
+### 5. CI/CD Quality Gate
+Integrate GateGuard with GitHub Actions to automate quality checks.
+
+- Receive CI analysis results.
+- Evaluate results against configured quality rules.
+- Determine whether a build passes or fails the quality gate.
+- Help teams identify quality issues before release.
+
+### 6. AI-Assisted Analysis Explanation
+GateGuard includes an analysis explanation service powered by Google's Gemini API when configured. It can help explain analysis findings in a more understandable way.
+
+---
+
+## 🧰 Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| UI | Tailwind/CSS-based styling, Lucide Icons |
+| Data Visualization | Recharts |
+| Backend | Node.js, Express.js, TypeScript |
+| Database | MongoDB, Mongoose |
+| Authentication | JWT, bcrypt |
+| Integrations | GitHub OAuth, Google OAuth |
+| AI Service | Google Gemini API |
+| CI/CD | GitHub Actions |
+| Deployment | Vercel |
+
+---
+
+## 🏗️ Project Architecture
+
+GateGuard follows a frontend-backend architecture.
 
 ```text
 GateGuard/
-├── backend/       # Express + TypeScript + MongoDB API
-├── frontend/      # React + TypeScript + Vite dashboard
-├── docs/          # QA plan and Summit demo runbook
-└── .github/       # Repository-level GitHub Actions workflow
+│
+├── api/                  # Vercel API handlers
+│
+├── backend/
+│   ├── src/
+│   │   ├── controllers/  # Request handling and business logic
+│   │   ├── middleware/   # Authentication and middleware
+│   │   ├── models/       # MongoDB models
+│   │   ├── routes/       # API routes
+│   │   ├── services/     # Application services
+│   │   └── server.ts     # Backend entry point
+│   │
+│   └── tests/            # Backend tests
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # Reusable UI components
+│   │   ├── pages/        # Application pages
+│   │   ├── lib/          # API and utility functions
+│   │   └── ...
+│   │
+│   └── ...
+│
+├── vercel.json
+└── README.md
 ```
 
-## Technology stack
+---
 
-- Frontend: React 19, TypeScript, Vite, React Router, Recharts
-- Backend: Node.js 20+, Express, TypeScript, Mongoose
-- Database: MongoDB
-- Authentication: bcrypt password hashing, JWT access tokens, token-version session invalidation
-- Integrations: GitHub OAuth, GitHub Actions, npm audit, ESLint, Vitest/V8 coverage
-- Reporting: PDFKit
-- AI assistance: Google Generative AI (optional; findings remain available if the service is not configured)
+## ⚙️ Getting Started
 
-## Local development
+### Prerequisites
 
-### 1. Start MongoDB
+Make sure you have installed:
 
-Run MongoDB locally or provision a MongoDB database. The default local URI is `mongodb://127.0.0.1:27017/gateguard`.
+- Node.js 20 or later
+- npm
+- MongoDB database
+- Git
 
-### 2. Configure and start the backend
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/nawsintabassum/GateGuard.git
+cd GateGuard
+```
+
+### 2. Configure Environment Variables
+
+Configure the environment variables required by the backend and frontend.
+
+Create the necessary `.env` files using the project's environment example files, if available.
+
+Typical configuration includes:
+
+**Backend**
+- MongoDB connection URI
+- JWT secret
+- Frontend/client URL
+- GitHub OAuth credentials
+- Google OAuth credentials
+- Gemini API key (optional)
+
+**Frontend**
+- API base URL
+- Demo mode configuration, if required
+
+Never commit actual secrets, API keys, database credentials, or OAuth client secrets to GitHub.
+
+### 3. Install Backend Dependencies
 
 ```bash
 cd backend
 npm install
-cp .env.example .env
 ```
 
-Set a unique `JWT_SECRET` with at least 32 characters. Generate an encryption key using `openssl rand -hex 32` and set `TOKEN_ENCRYPTION_KEY`. The sample key in `.env.example` is a placeholder and must never be used outside local setup.
+### 4. Start the Backend
 
 ```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build
 npm run dev
 ```
 
-The API runs at `http://localhost:5000` by default. Health check: `GET http://localhost:5000/api/health`.
+The backend development server runs at:
 
-### 3. Configure and start the frontend
+```text
+http://localhost:5000
+```
+
+### 5. Install Frontend Dependencies
+
+Open another terminal:
 
 ```bash
 cd frontend
-npm ci
-cp .env.example .env
-npm run typecheck
-npm run build
+npm install
+```
+
+### 6. Start the Frontend
+
+```bash
 npm run dev
 ```
 
-The Vite app runs at `http://localhost:5173`. `VITE_API_URL` should point to the backend API. Set `VITE_DEMO_MODE=true` only when intentionally reviewing sample data; demo records are not real repository analysis.
+Open the local URL displayed by Vite in your browser.
 
-## GitHub OAuth setup
+---
 
-Create a GitHub OAuth App and configure:
+## 🧪 Testing
 
-- Homepage URL: your frontend origin, e.g. `http://localhost:5173`
-- Authorization callback URL: `http://localhost:5000/api/github/callback`
+Run backend tests:
 
-Set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_CALLBACK_URL`, and a real `TOKEN_ENCRYPTION_KEY` in the backend environment. All OAuth values must be configured together.
+```bash
+cd backend
+npm test
+```
 
-## Connect a repository to CI
+Run backend tests with coverage:
 
-1. Register and sign in to GateGuard.
-2. Add the GitHub repository URL from the Projects page.
-3. Save the returned CI token as a GitHub Actions secret named `GATEGUARD_CI_TOKEN`.
-4. Add repository variables `GATEGUARD_PROJECT_ID` and `GATEGUARD_API_URL`.
-5. Push a commit or manually run the `GateGuard Quality Gate` workflow.
+```bash
+npm run test:coverage
+```
 
-The API never executes untrusted repository code. GitHub Actions runs checks in an isolated runner and sends structured results to the API. The workflow fails when the resulting GateGuard quality gate fails.
+Build the frontend:
 
-## Quality and security notes
+```bash
+cd frontend
+npm run build
+```
 
-- Passwords are bcrypt-hashed; accepted passwords are limited to bcrypt's 72-byte input boundary.
-- Password changes and resets increment the account token version, invalidating previous access tokens.
-- GitHub OAuth uses a one-time, expiring random state value; GitHub tokens are encrypted at rest with AES-256-GCM.
-- CI tokens are stored as SHA-256 hashes and checked using a timing-safe comparison.
-- User-facing project and analysis queries are scoped to the authenticated owner.
-- API request payloads are validated with Zod and request rates are limited.
-- Production password-reset email delivery is intentionally disabled until an email provider is configured; the API returns an explicit configuration error rather than claiming an email was sent.
+---
 
-See [the QA plan](docs/QUALITY_ASSURANCE.md) and [the Summit demo runbook](docs/SUMMIT_DEMO_RUNBOOK.md) before presenting the project.
+## 🔄 CI/CD Integration
 
-## Authentication setup (local development)
+GateGuard supports quality gate evaluation through GitHub Actions.
 
-1. Copy `backend/.env.example` to `backend/.env` and fill in your MongoDB URI, a unique `JWT_SECRET`, and a 64-character hexadecimal `TOKEN_ENCRYPTION_KEY`.
-2. For GitHub sign-in, configure the GitHub OAuth App callback URL as `http://localhost:5000/api/github/callback`. Put its client ID and secret in `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`. Keep `GITHUB_CALLBACK_URL` equal to that exact callback URL; it is shared by GitHub sign-in and the existing GitHub account-connection flow.
-3. For Google sign-in, create a Google OAuth Web application. Add `http://localhost:5000/api/auth/oauth/google/callback` as an authorized redirect URI, then set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CALLBACK_URL` in `backend/.env`.
-4. Copy `frontend/.env.example` to `frontend/.env`. Keep `VITE_API_URL=http://localhost:5000/api` (the `/api` suffix is required).
-5. Start the backend (`cd backend && npm install && npm run dev`) and frontend (`cd frontend && npm install && npm run dev`) in separate terminals. After changing either `.env` file or `vite.config.ts`, stop the dev server with Ctrl+C and restart it.
+A typical workflow:
 
-Social sign-in requires the matching OAuth provider credentials and exact callback URLs. Email/password registration and login use the same `/api` proxy and require the backend and MongoDB to be running.
+1. A developer pushes code or creates a pull request.
+2. GitHub Actions runs the configured CI workflow.
+3. The workflow collects available test and quality metrics.
+4. Results are submitted to the GateGuard API.
+5. GateGuard evaluates the results against configured quality rules.
+6. The quality gate returns a PASS or FAIL decision.
 
+This helps development teams identify quality problems before changes move further through the delivery pipeline.
 
-### OAuth callback troubleshooting
-- A GitHub OAuth App supports one callback URL. Keep its callback URL equal to `GITHUB_CALLBACK_URL` (normally `http://localhost:5000/api/github/callback`). GateGuard dispatches this callback to sign-in or workspace connection using the corresponding OAuth state.
-- The Google OAuth callback must be exactly `http://localhost:5000/api/auth/oauth/google/callback`.
-- The OAuth callback page prevents duplicate one-time code exchanges during React StrictMode development mounting.
+---
 
-## Summit presentation resources
+## 🔐 Security
 
-See `docs/COMPETITION_SHOWCASE_KIT.md` for the five-minute demo script, Q&A, offline-demo scope, team/originality declaration and QA evidence register. See `docs/TEST_CASES.md` and `docs/OPEN_SOURCE_DISCLOSURE.md` before presenting. Replace placeholders and record only tests that have actually been executed.
+GateGuard incorporates security-focused practices, including:
+
+- Password hashing using bcrypt.
+- JWT-based authentication.
+- Protected API routes.
+- Secure handling of sensitive user fields.
+- GitHub OAuth integration.
+- Environment-based secret configuration.
+- Dependency vulnerability monitoring.
+
+---
+
+## 🎯 Why GateGuard?
+
+Software quality is more than writing code that works. It also involves maintainability, test reliability, security, and consistency.
+
+GateGuard helps development teams:
+
+- Monitor software quality from one workspace.
+- Identify potential issues earlier.
+- Establish consistent quality standards.
+- Automate quality gate decisions.
+- Make more informed release decisions.
+
+**Our goal is to make software quality measurable, understandable, and actionable.**
+
+---
+
+## 🌐 Project Links
+
+- **GitHub Repository:** https://github.com/nawsintabassum/GateGuard
+- **Live Application:https://gateguard-git-test-pull-request-gate-guard1.vercel.app
+
+---
+
+## 👥 Project Information
+
+**Project Name:** GateGuard  
+**Project Category:** Software Quality Monitoring & Quality Gate Management  
+**Project Showcase:** DIU SQAT Summit
+
+---
+
