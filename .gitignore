@@ -11,3 +11,6 @@ backend/npm-audit.json
 backend/gateguard-result.json
 backend/gateguard-response.json
 frontend/frontend-audit.json
+
+.vercel
+.env*
