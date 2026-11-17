@@ -1,3 +1,4 @@
+```yaml
 name: GateGuard Quality Gate
 
 on:
@@ -11,6 +12,7 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -49,12 +51,6 @@ jobs:
         continue-on-error: true
         working-directory: backend
         run: npx eslint src --format json --output-file eslint-report.json
-
-      - name: Tests and coverage
-        id: tests
-        continue-on-error: true
-        working-directory: backend
-        run: npx vitest run --coverage --coverage.reporter=json-summary --reporter=json --outputFile=test-results.json
 
       - name: Tests and coverage
         id: tests
@@ -107,17 +103,22 @@ jobs:
           API_URL: ${{ vars.GATEGUARD_API_URL }}
         run: |
           set -euo pipefail
+
           if [ -z "$PROJECT_ID" ] || [ -z "$CI_TOKEN" ] || [ -z "$API_URL" ]; then
             echo "Missing GATEGUARD_PROJECT_ID, GATEGUARD_CI_TOKEN, or GATEGUARD_API_URL configuration."
             exit 1
           fi
+
           curl --fail-with-body -sS -X POST "$API_URL/api/ci/$PROJECT_ID/results" \
             -H "Content-Type: application/json" \
             -H "X-GateGuard-Token: $CI_TOKEN" \
             --data-binary @gateguard-result.json \
             -o gateguard-response.json
+
           cat gateguard-response.json
+
           jq -e '.qualityGate.status == "PASS"' gateguard-response.json >/dev/null || {
             echo "GateGuard quality gate failed. See the submitted analysis for details."
             exit 1
           }
+```
