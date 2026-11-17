@@ -54,7 +54,7 @@ jobs:
         id: tests
         continue-on-error: true
         working-directory: backend
-        run: npx vitest run --coverage --reporter=json --outputFile=test-results.json
+        run: npx vitest run --coverage --coverage.reporter=json-summary --reporter=json --outputFile=test-results.json
 
       - name: Backend production build
         id: backend_build
