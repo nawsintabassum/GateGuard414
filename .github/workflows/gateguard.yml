@@ -56,6 +56,23 @@ jobs:
         working-directory: backend
         run: npx vitest run --coverage --coverage.reporter=json-summary --reporter=json --outputFile=test-results.json
 
+      - name: Tests and coverage
+        id: tests
+        continue-on-error: true
+        working-directory: backend
+        run: npx vitest run --coverage --coverage.reporter=json-summary --reporter=json --outputFile=test-results.json
+
+      - name: Show coverage summary
+        if: always()
+        working-directory: backend
+        run: |
+          echo "=== Coverage Summary ==="
+          if [ -f coverage/coverage-summary.json ]; then
+            cat coverage/coverage-summary.json
+          else
+            echo "Coverage summary file not found"
+          fi
+
       - name: Backend production build
         id: backend_build
         continue-on-error: true
