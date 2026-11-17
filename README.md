@@ -8,7 +8,7 @@ GateGuard is a software quality monitoring and quality gate management platform 
 By integrating with GitHub and CI/CD workflows, GateGuard brings essential software quality insights into one centralized workspace.
 
 ---
-## Vercel Link : https://gateguard-git-test-pull-request-gate-guard1.vercel.app
+## Vercel Link : https://gateguard-git-test-pull-request-gate-guard1.vercel.app/
 
 ## 🚀 Key Features
 
@@ -124,7 +124,7 @@ Make sure you have installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/nawsintabassum/GateGuard.git
+git clone https://github.com/nawsintabassum/GateGuard414
 cd GateGuard
 ```
 
@@ -261,7 +261,7 @@ GateGuard helps development teams:
 
 ## 🌐 Project Links
 
-- **GitHub Repository:** https://github.com/nawsintabassum/GateGuard
+- **GitHub Repository:** https://github.com/nawsintabassum/GateGuard414
 - **Live Application:https://gateguard-git-test-pull-request-gate-guard1.vercel.app
 
 ---
